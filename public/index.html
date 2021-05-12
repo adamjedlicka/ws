@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    Hello, World!
+
+    <script>
+      const ws = new WebSocket("ws://localhost:8080");
+
+      const labels = {};
+
+      ws.addEventListener("open", () => {
+        ws.addEventListener("message", ({ data }) => {
+          const message = JSON.parse(data);
+
+          const label = labels[message.id];
+
+          if (!label) {
+            const label = document.createElement("div");
+            label.innerText = message.id;
+            label.style.position = "fixed";
+            label.style.top = message.y + "px";
+            label.style.left = message.x + "px";
+            document.body.appendChild(label);
+            labels[message.id] = label;
+          } else {
+            label.style.top = message.y + "px";
+            label.style.left = message.x + "px";
+          }
+        });
+
+        document.addEventListener("mousemove", (e) => {
+          ws.send(
+            JSON.stringify({
+              x: e.clientX,
+              y: e.clientY,
+            })
+          );
+        });
+      });
+    </script>
+  </body>
+</html>
